@@ -1,35 +1,50 @@
 # CampusPilot
 
-A hackathon project — students report campus issues (broken projector, leaking pipe, whatever) in plain text, and the system figures out what it is, how urgent it is, who should fix it, creates a ticket, and follows up if nobody handles it in time.
+Autonomous campus operations agent. A student describes a problem in plain
+English; CampusPilot triages it, creates and routes a ticket, stores it in
+Exasol, shows it on an admin dashboard, and follows up automatically if it
+stays unresolved.
 
-## What's in here
+- **Frontend** — root directory (Vite + React). `npm install && npm run dev`.
+- **Backend** — [`backend/`](./backend) (Node.js/Express + Exasol Personal +
+  the Triage/Action/Follow-up agents). Start there for setup: **get Exasol
+  running first**, per [`backend/README.md`](./backend/README.md).
 
-- `frontend/` — the React app students and admins actually use
-- `backend/` — APIs + the AI agents that do the triage/routing/follow-up (Person 2's part)
+## Pages & Routes
 
-## Running the frontend
+- `/` — Student complaint submission page
+- `/dashboard` — Admin dashboard (view tickets, resolve, simulate follow-up)
+- `/ticket/:id` — Individual ticket detail page
 
-```bash
-cd frontend
-npm install
-npm run dev
+## Repo layout
+
+```text
+.
+├── src/               frontend (Vite/React) — complaint page, dashboard, ticket page
+├── backend/            Express API, Exasol schema/migration, 3 logical agents
+│   ├── src/agents/      triageAgent.js, actionAgent.js, followupAgent.js
+│   ├── src/db/          connection.js, schema.sql, migrate.js, ticketsRepo.js
+│   ├── src/routes/      complaints.js, tickets.js, followup.js
+│   └── test/            unit + integration tests (LLM and Exasol both mocked)
+└── .github/workflows/  CI: frontend tests+build, backend unit+integration tests
 ```
 
-Then open `http://localhost:5173`
+## Quick start (both halves)
+
+```bash
+# Terminal 1 — backend (see backend/README.md for the Exasol setup step first)
+cd backend && npm install && npm run db:migrate && npm run dev
+
+# Terminal 2 — frontend
+npm install && npm run dev
+```
 
 ## Tests
 
 ```bash
-cd frontend
-npm run test
+# Frontend tests
+npm test
+
+# Backend tests
+cd backend && npm test
 ```
-
-## Pages
-
-- `/` — submit a complaint
-- `/dashboard` — admin view, resolve tickets, trigger follow-up
-- `/ticket/:id` — view a single ticket
-
-## Status
-
-Frontend's done. Backend and the AI agents are still being built — once that's ready we'll hook this up to real data instead of the placeholder stuff it's using now.

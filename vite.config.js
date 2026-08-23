@@ -6,6 +6,10 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
-    setupFiles: './src/setupTests.js'
+    setupFiles: './src/setupTests.js',
+    // backend/ has its own vitest.config.js and its own test suite — keep
+    // this project's test run scoped to the frontend so `npm test` here
+    // never tries to load backend tests (and their Node-only deps).
+    include: ['src/**/*.{test,spec}.{js,jsx,ts,tsx}']
   }
 })
