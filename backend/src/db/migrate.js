@@ -1,6 +1,3 @@
-// Runs schema.sql against Exasol. Usage: npm run db:migrate
-// Splits on ';' — fine for this file since none of our statements contain
-// a semicolon inside a string/comment.
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
@@ -10,10 +7,17 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 async function migrate() {
   const sql = readFileSync(path.join(__dirname, 'schema.sql'), 'utf-8');
+
   const statements = sql
     .split(';')
-    .map((s) => s.trim())
-    .filter((s) => s.length > 0 && !s.startsWith('--'));
+    .map((s) =>
+      s
+        .split('\n')
+        .filter((line) => !line.trim().startsWith('--'))
+        .join('\n')
+        .trim()
+    )
+    .filter((s) => s.length > 0);
 
   const driver = openConnection();
   await driver.connect();
@@ -30,6 +34,6 @@ async function migrate() {
 }
 
 migrate().catch((err) => {
-  console.error('Migration failed:', err.message);
+  console.error('Migration failed:', err);
   process.exit(1);
 });

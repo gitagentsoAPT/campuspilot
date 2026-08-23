@@ -1,6 +1,3 @@
-// Real Exasol-backed implementation of the tickets repository.
-// Routes/agents depend on this *shape*, not on Exasol directly — tests
-// inject an in-memory fake with the same shape (see test/fakeTicketsRepo.js).
 import { withConnection } from './connection.js';
 
 function rowToTicket(row) {
@@ -12,18 +9,14 @@ function rowToTicket(row) {
     department: row.DEPARTMENT,
     location: row.LOCATION,
     priority: row.PRIORITY,
-    status: row.STATUS,
+    status: row.TICKET_STATUS,
     createdAt: row.CREATED_AT,
     updatedAt: row.UPDATED_AT
   };
 }
 
-// The driver's prepared-statement `execute()` (used for INSERT/UPDATE below)
-// doesn't return rows in a convenient shape, so reads that need a dynamic
-// value go through `query()` with a manually-escaped literal instead of a
-// placeholder. Only ever call this on values you're about to inline into
-// SQL text — never build a string with a raw, un-escaped value.
-function escapeSqlString(value) {
+function esc(value) {
+  if (value === null || value === undefined) return 'NULL';
   return `'${String(value).replace(/'/g, "''")}'`;
 }
 
@@ -38,25 +31,10 @@ export const exasolTicketsRepo = {
 
   async createTicket(ticket) {
     return withConnection(async (driver) => {
-      const statement = await driver.prepare(
-        `INSERT INTO TICKETS
-          (TICKET_ID, STUDENT_ID, DESCRIPTION, CATEGORY, DEPARTMENT, LOCATION, PRIORITY, STATUS)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
-      );
-      try {
-        await statement.execute(
-          ticket.ticketId,
-          ticket.studentId ?? null,
-          ticket.description,
-          ticket.category,
-          ticket.department,
-          ticket.location ?? null,
-          ticket.priority,
-          ticket.status ?? 'OPEN'
-        );
-      } finally {
-        await statement.close();
-      }
+      const sql = `INSERT INTO TICKETS
+        (TICKET_ID, STUDENT_ID, DESCRIPTION, CATEGORY, DEPARTMENT, LOCATION, PRIORITY, TICKET_STATUS)
+       VALUES (${esc(ticket.ticketId)}, ${esc(ticket.studentId ?? null)}, ${esc(ticket.description)}, ${esc(ticket.category)}, ${esc(ticket.department)}, ${esc(ticket.location ?? null)}, ${esc(ticket.priority)}, ${esc(ticket.status ?? 'OPEN')})`;
+      await driver.execute(sql);
       return ticket;
     });
   },
@@ -71,7 +49,7 @@ export const exasolTicketsRepo = {
   async getTicket(ticketId) {
     return withConnection(async (driver) => {
       const result = await driver.query(
-        `SELECT * FROM TICKETS WHERE TICKET_ID = ${escapeSqlString(ticketId)}`
+        `SELECT * FROM TICKETS WHERE TICKET_ID = ${esc(ticketId)}`
       );
       const rows = result.getRows();
       return rows.length ? rowToTicket(rows[0]) : null;
@@ -80,21 +58,15 @@ export const exasolTicketsRepo = {
 
   async updateTicketStatus(ticketId, status) {
     return withConnection(async (driver) => {
-      const statement = await driver.prepare(
-        'UPDATE TICKETS SET STATUS = ?, UPDATED_AT = CURRENT_TIMESTAMP WHERE TICKET_ID = ?'
-      );
-      try {
-        await statement.execute(status, ticketId);
-      } finally {
-        await statement.close();
-      }
+      const sql = `UPDATE TICKETS SET TICKET_STATUS = ${esc(status)}, UPDATED_AT = CURRENT_TIMESTAMP WHERE TICKET_ID = ${esc(ticketId)}`;
+      await driver.execute(sql);
     });
   },
 
   async listOpenTickets() {
     return withConnection(async (driver) => {
       const result = await driver.query(
-        "SELECT * FROM TICKETS WHERE STATUS = 'OPEN' ORDER BY CREATED_AT ASC"
+        "SELECT * FROM TICKETS WHERE TICKET_STATUS = 'OPEN' ORDER BY CREATED_AT ASC"
       );
       return result.getRows().map(rowToTicket);
     });
@@ -102,14 +74,8 @@ export const exasolTicketsRepo = {
 
   async createFollowup(followup) {
     return withConnection(async (driver) => {
-      const statement = await driver.prepare(
-        'INSERT INTO FOLLOWUPS (TICKET_ID, ACTION, MESSAGE) VALUES (?, ?, ?)'
-      );
-      try {
-        await statement.execute(followup.ticketId, followup.action, followup.message);
-      } finally {
-        await statement.close();
-      }
+      const sql = `INSERT INTO FOLLOWUPS (TICKET_ID, ACTION_TYPE, MESSAGE) VALUES (${esc(followup.ticketId)}, ${esc(followup.action)}, ${esc(followup.message)})`;
+      await driver.execute(sql);
     });
   }
 };

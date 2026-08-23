@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { submitComplaint } from './api'
 import './App.css'
 
 function ComplaintPage() {
@@ -8,7 +9,7 @@ function ComplaintPage() {
   const [ticket, setTicket] = useState(null)
   const [error, setError] = useState('')
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (message.trim() === '') {
       setError('Please describe your problem before submitting.')
       return
@@ -18,17 +19,14 @@ function ComplaintPage() {
     setLoading(true)
     setTicket(null)
 
-    setTimeout(() => {
+    try {
+      const result = await submitComplaint('STU001', message)
+      setTicket(result)
+    } catch (err) {
+      setError('Something went wrong submitting your complaint. Please try again.')
+    } finally {
       setLoading(false)
-      setTicket({
-        ticketId: 'CP1024',
-        category: 'maintenance',
-        department: 'AV Maintenance',
-        location: 'AB2-304',
-        priority: 'HIGH',
-        status: 'OPEN'
-      })
-    }, 1500)
+    }
   }
 
   return (
@@ -60,8 +58,8 @@ function ComplaintPage() {
           <p><strong>Category:</strong> {ticket.category}</p>
           <p><strong>Department:</strong> {ticket.department}</p>
           <p><strong>Location:</strong> {ticket.location}</p>
-          <p><strong>Priority:</strong> <span className="badge badge-high">{ticket.priority}</span></p>
-          <p><strong>Status:</strong> <span className="badge badge-open">{ticket.status}</span></p>
+          <p><strong>Priority:</strong> <span className={`badge ${ticket.priority === 'HIGH' ? 'badge-high' : 'badge-low'}`}>{ticket.priority}</span></p>
+          <p><strong>Status:</strong> <span className={`badge ${ticket.status === 'OPEN' ? 'badge-open' : 'badge-resolved'}`}>{ticket.status}</span></p>
         </div>
       )}
 
