@@ -108,7 +108,7 @@ graph TD
 │   │   │   ├── actionAgent.js   # Ticket entity creation & resolution agent
 │   │   │   ├── classifier.js    # Rule-based fallback classifier
 │   │   │   ├── followupAgent.js # Overdue ticket monitoring & reminder agent
-│   │   │   └── triageAgent.js   # Claude 3.5 Haiku NLP triage agent
+│   │   │   └── triageAgent.js   # NLP triage agent
 │   │   ├── db/                 # Database persistence layer
 │   │   │   ├── connection.js    # Exasol WebSocket client wrapper
 │   │   │   ├── migrate.js       # DDL migration execution script
