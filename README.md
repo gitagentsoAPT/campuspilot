@@ -108,7 +108,7 @@ graph TD
 │   │   │   ├── actionAgent.js   # Ticket entity creation & resolution agent
 │   │   │   ├── classifier.js    # Rule-based fallback classifier
 │   │   │   ├── followupAgent.js # Overdue ticket monitoring & reminder agent
-│   │   │   └── triageAgent.js   # NLP triage agent
+│   │   │   └── triageAgent.js   # Claude 3.5 Haiku NLP triage agent
 │   │   ├── db/                 # Database persistence layer
 │   │   │   ├── connection.js    # Exasol WebSocket client wrapper
 │   │   │   ├── migrate.js       # DDL migration execution script
@@ -137,7 +137,7 @@ graph TD
 
 ## 🛠️ Setup & Getting Started
 
-### Phase 1 — Database Setup (Exasol Personal)
+### 🍎 macOS Setup (Exasol Personal Native)
 
 Local Exasol Personal deployment currently supports **macOS Apple Silicon (M1/M2/M3/M4)**.
 
@@ -156,43 +156,80 @@ exasol info
 exasol connect
 ```
 
-### Phase 2 — Backend Configuration & Run
+---
 
-```bash
-# Navigate to backend folder
+### 🪟 Windows Setup (PowerShell / CMD / Docker)
+
+#### Prerequisites for Windows
+- **Node.js 18+** installed ([nodejs.org](https://nodejs.org/))
+- **Docker Desktop** (optional, for running local Exasol DB container via WSL2) or access to an Exasol Cloud database instance.
+
+#### Step 1: Database Setup on Windows
+Since the native `exasol install local` CLI tool targets macOS, use one of the following methods on Windows:
+
+##### Option A: Local Exasol via Docker Desktop (Recommended)
+```powershell
+# Run official Exasol DB container (maps port 8563)
+docker run -d --name campuspilot-exasol -p 8563:8563 exasol/docker-db:latest
+```
+Default Docker container parameters for `backend\.env`:
+- `EXASOL_HOST=localhost`
+- `EXASOL_PORT=8563`
+- `EXASOL_USER=sys`
+- `EXASOL_PASSWORD=exasol`
+
+##### Option B: Exasol Cloud / Remote Server
+If connecting to an Exasol Cloud instance or remote server:
+Obtain host, port, user, and password from your cloud console and update `backend\.env`.
+
+#### Step 2: Backend Setup (Windows PowerShell or Command Prompt)
+```powershell
+# Open terminal and navigate to backend directory
 cd backend
 
-# Install node dependencies
+# Install dependencies
 npm install
 
-# Create environment configuration
-cp .env.example .env
+# Copy environment template (PowerShell)
+Copy-Item .env.example .env
+# (Or in Command Prompt: copy .env.example .env)
 
-# Populate backend/.env with your `exasol info` output:
-# EXASOL_HOST=localhost
-# EXASOL_PORT=8563
-# EXASOL_USER=sys
-# EXASOL_PASSWORD=<your_password>
-# ANTHROPIC_API_KEY=sk-ant-... (Optional)
+# Open backend\.env in Notepad or VS Code to set EXASOL_* credentials and ANTHROPIC_API_KEY (optional)
+# notepad .env
 
-# Run SQL table migrations
+# Run database migrations (creates schema & tables)
 npm run db:migrate
 
-# Launch Express server
+# Start backend API server
 npm run dev
 ```
-Backend API will be live at `http://localhost:4000`.
+Backend API will run at `http://localhost:4000`.
 
-### Phase 3 — Frontend Run
-
-In a separate terminal window:
-
-```bash
-# From repository root
+#### Step 3: Frontend Setup (Windows PowerShell or Command Prompt)
+In a new terminal window:
+```powershell
+# From the campuspilot root directory
 npm install
 npm run dev
 ```
-Frontend Web App will be live at `http://localhost:5173`.
+Frontend Web App will run at `http://localhost:5173`.
+
+---
+
+### 🚀 Common Run Workflow (macOS & Windows)
+
+### Phase 1 — Backend Run
+```bash
+cd backend
+npm run db:migrate
+npm run dev
+```
+
+### Phase 2 — Frontend Run
+```bash
+npm run dev
+```
+
 
 ---
 
