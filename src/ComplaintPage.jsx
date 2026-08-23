@@ -18,7 +18,6 @@ function ComplaintPage() {
     setLoading(true)
     setTicket(null)
 
-    // FAKE response for now — we'll replace this with a real API call later
     setTimeout(() => {
       setLoading(false)
       setTicket({
@@ -33,13 +32,12 @@ function ComplaintPage() {
   }
 
   return (
-    <div style={{ maxWidth: '500px', margin: '50px auto', fontFamily: 'sans-serif' }}>
-      <h1>🏫 CampusPilot</h1>
-      <p>Campus Operations Assistant</p>
+    <div className="page">
+      <h1 className="title">🏫 CampusPilot</h1>
+      <p className="subtitle">Campus Operations Assistant</p>
 
       <textarea
         rows="4"
-        style={{ width: '100%', padding: '10px', fontSize: '16px' }}
         placeholder="Describe your problem..."
         value={message}
         onChange={(e) => setMessage(e.target.value)}
@@ -47,31 +45,29 @@ function ComplaintPage() {
 
       <br /><br />
 
-      <button
-        onClick={handleSubmit}
-        style={{ padding: '10px 20px', fontSize: '16px', cursor: 'pointer' }}
-      >
+      <button className="btn" onClick={handleSubmit}>
         Submit Complaint
       </button>
 
-      {loading && <p>🤖 Analyzing...</p>}
+      {loading && <p className="loading-text">🤖 Analyzing...</p>}
 
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {error && <p className="error-text">{error}</p>}
 
       {ticket && (
-        <div style={{ border: '1px solid #ccc', padding: '15px', marginTop: '20px', borderRadius: '8px' }}>
+        <div className="card">
           <h3>✅ Complaint Submitted</h3>
           <p><strong>Ticket ID:</strong> {ticket.ticketId}</p>
           <p><strong>Category:</strong> {ticket.category}</p>
           <p><strong>Department:</strong> {ticket.department}</p>
           <p><strong>Location:</strong> {ticket.location}</p>
-          <p><strong>Priority:</strong> 🔴 {ticket.priority}</p>
-          <p><strong>Status:</strong> 🟡 {ticket.status}</p>
+          <p><strong>Priority:</strong> <span className="badge badge-high">{ticket.priority}</span></p>
+          <p><strong>Status:</strong> <span className="badge badge-open">{ticket.status}</span></p>
         </div>
       )}
 
-      <br />
-      <Link to="/dashboard">Go to Admin Dashboard →</Link>
+      <div className="link-row">
+        <Link to="/dashboard">Go to Admin Dashboard →</Link>
+      </div>
     </div>
   )
 }
