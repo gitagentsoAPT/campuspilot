@@ -5,16 +5,22 @@ English; CampusPilot triages it, creates and routes a ticket, stores it in
 Exasol, shows it on an admin dashboard, and follows up automatically if it
 stays unresolved.
 
-- **Frontend** — this directory (Vite + React). `npm install && npm run dev`.
+- **Frontend** — root directory (Vite + React). `npm install && npm run dev`.
 - **Backend** — [`backend/`](./backend) (Node.js/Express + Exasol Personal +
   the Triage/Action/Follow-up agents). Start there for setup: **get Exasol
   running first**, per [`backend/README.md`](./backend/README.md).
+
+## Pages & Routes
+
+- `/` — Student complaint submission page
+- `/dashboard` — Admin dashboard (view tickets, resolve, simulate follow-up)
+- `/ticket/:id` — Individual ticket detail page
 
 ## Repo layout
 
 ```text
 .
-├── src/               frontend (Vite/React) — complaint page + admin dashboard
+├── src/               frontend (Vite/React) — complaint page, dashboard, ticket page
 ├── backend/            Express API, Exasol schema/migration, 3 logical agents
 │   ├── src/agents/      triageAgent.js, actionAgent.js, followupAgent.js
 │   ├── src/db/          connection.js, schema.sql, migrate.js, ticketsRepo.js
@@ -31,4 +37,14 @@ cd backend && npm install && npm run db:migrate && npm run dev
 
 # Terminal 2 — frontend
 npm install && npm run dev
+```
+
+## Tests
+
+```bash
+# Frontend tests
+npm test
+
+# Backend tests
+cd backend && npm test
 ```
