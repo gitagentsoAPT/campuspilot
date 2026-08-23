@@ -1,15 +1,13 @@
-# 🏫 CampusPilot
+# CampusPilot
 
-Autonomous AI system for handling student campus complaints.
+A hackathon project — students report campus issues (broken projector, leaking pipe, whatever) in plain text, and the system figures out what it is, how urgent it is, who should fix it, creates a ticket, and follows up if nobody handles it in time.
 
-Students describe a problem in plain language. The system understands it, decides its category and priority, creates a ticket, routes it to the right department, and follows up automatically if it goes unresolved.
+## What's in here
 
-## Project Structure
+- `frontend/` — the React app students and admins actually use
+- `backend/` — APIs + the AI agents that do the triage/routing/follow-up (Person 2's part)
 
-- `frontend/` — React app (student complaint form, admin dashboard, ticket detail page)
-- `backend/` — Node.js APIs + AI agents (Triage, Action, Follow-up) + Exasol database
-
-## Frontend Setup
+## Running the frontend
 
 ```bash
 cd frontend
@@ -17,9 +15,9 @@ npm install
 npm run dev
 ```
 
-Visit `http://localhost:5173`
+Then open `http://localhost:5173`
 
-## Running Tests
+## Tests
 
 ```bash
 cd frontend
@@ -28,12 +26,10 @@ npm run test
 
 ## Pages
 
-- `/` — Student complaint submission
-- `/dashboard` — Admin dashboard (view, resolve, and follow up on tickets)
-- `/ticket/:id` — Individual ticket details
+- `/` — submit a complaint
+- `/dashboard` — admin view, resolve tickets, trigger follow-up
+- `/ticket/:id` — view a single ticket
 
 ## Status
 
-- ✅ Frontend built and tested
-- ⏳ Backend + AI agents in progress
-- ⏳ Backend integration pending
+Frontend's done. Backend and the AI agents are still being built — once that's ready we'll hook this up to real data instead of the placeholder stuff it's using now.
